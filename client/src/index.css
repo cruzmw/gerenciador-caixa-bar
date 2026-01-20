@@ -43,39 +43,49 @@
 }
 
 :root {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-600);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  --chart-1: var(--color-blue-300);
-  --chart-2: var(--color-blue-500);
-  --chart-3: var(--color-blue-600);
-  --chart-4: var(--color-blue-700);
-  --chart-5: var(--color-blue-800);
-  --radius: 0.65rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.235 0.015 65);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.235 0.015 65);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.235 0.015 65);
-  --secondary: oklch(0.98 0.001 286.375);
-  --secondary-foreground: oklch(0.4 0.015 65);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.141 0.005 285.823);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.623 0.214 259.815);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.235 0.015 65);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.623 0.214 259.815);
+  /* Minimalismo Funcional - Design System */
+  --primary: oklch(0.623 0.214 259.815);
+  --primary-foreground: oklch(1 0 0);
+  --sidebar-primary: oklch(0.623 0.214 259.815);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  
+  /* Status Colors */
+  --positive: oklch(0.577 0.191 142.495); /* Green #10B981 */
+  --positive-foreground: oklch(1 0 0);
+  --negative: oklch(0.577 0.245 27.325); /* Red #EF4444 */
+  --negative-foreground: oklch(1 0 0);
+  
+  /* Chart Colors */
+  --chart-1: oklch(0.577 0.191 142.495);
+  --chart-2: oklch(0.577 0.245 27.325);
+  --chart-3: oklch(0.623 0.214 259.815);
+  --chart-4: oklch(0.7 0.15 280);
+  --chart-5: oklch(0.6 0.1 200);
+  
+  --radius: 0.5rem;
+  --background: oklch(1 0 0); /* White */
+  --foreground: oklch(0.235 0.015 65); /* Dark Gray */
+  --card: oklch(1 0 0); /* White */
+  --card-foreground: oklch(0.235 0.015 65); /* Dark Gray */
+  --popover: oklch(1 0 0); /* White */
+  --popover-foreground: oklch(0.235 0.015 65); /* Dark Gray */
+  --secondary: oklch(0.95 0.002 286.375); /* Light Gray */
+  --secondary-foreground: oklch(0.3 0.015 65); /* Medium Gray */
+  --muted: oklch(0.92 0.004 286.32); /* Very Light Gray */
+  --muted-foreground: oklch(0.552 0.016 285.938); /* Medium Gray */
+  --accent: oklch(0.577 0.191 142.495); /* Green */
+  --accent-foreground: oklch(1 0 0); /* White */
+  --destructive: oklch(0.577 0.245 27.325); /* Red */
+  --destructive-foreground: oklch(1 0 0); /* White */
+  --border: oklch(0.95 0.002 286.32); /* Very Light Gray */
+  --input: oklch(0.98 0.001 286.375); /* Almost White */
+  --ring: oklch(0.623 0.214 259.815); /* Primary */
+  --sidebar: oklch(1 0 0); /* White */
+  --sidebar-foreground: oklch(0.235 0.015 65); /* Dark Gray */
+  --sidebar-accent: oklch(0.577 0.191 142.495); /* Green */
+  --sidebar-accent-foreground: oklch(1 0 0); /* White */
+  --sidebar-border: oklch(0.95 0.002 286.32); /* Very Light Gray */
+  --sidebar-ring: oklch(0.623 0.214 259.815); /* Primary */
 }
 
 .dark {
@@ -119,7 +129,34 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
   }
+  
+  /* Typography System */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+  
+  /* Display Numbers - IBM Plex Mono */
+  .display-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  
+  /* Label Text - Small Caps Style */
+  .label-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: oklch(0.4 0.015 65);
+  }
+  
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
   [type="button"]:not(:disabled),
@@ -158,6 +195,37 @@
   .flex {
     min-height: 0;
     min-width: 0;
+  }
+
+  /* Minimalismo Funcional - Custom Components */
+  .dashboard-card {
+    @apply bg-white border border-gray-200 rounded-lg p-6 transition-all duration-150;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+  
+  .dashboard-card:hover {
+    @apply border-gray-300;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  }
+  
+  .value-positive {
+    @apply text-green-600;
+  }
+  
+  .value-negative {
+    @apply text-red-600;
+  }
+  
+  .status-indicator {
+    @apply inline-block w-2 h-2 rounded-full mr-2;
+  }
+  
+  .status-positive {
+    @apply bg-green-600;
+  }
+  
+  .status-negative {
+    @apply bg-red-600;
   }
 
   @media (min-width: 640px) {
