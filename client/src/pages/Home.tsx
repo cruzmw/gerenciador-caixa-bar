@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Trash2, Plus, RotateCcw } from 'lucide-react';
+import { Trash2, Plus, RotateCcw, FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import { gerarPDFFechamentoCaixa, gerarCSVFechamentoCaixa, type CaixaFechamento } from '@/lib/pdf-generator';
 
 /**
  * Gerenciador de Caixa - Bar
@@ -14,6 +15,7 @@ import { toast } from 'sonner';
  * - Duas colunas abaixo: Entradas (verde) | Saídas (vermelho)
  * - Cálculo em tempo real: Saldo = Abertura + Entradas + Suprimento - Saídas - Retirada
  * - Persistência em localStorage
+ * - Exportação em PDF e CSV ao fechar caixa
  */
 
 interface Transacao {
@@ -187,16 +189,71 @@ export default function Home() {
   const valorAberturaNum = parseFloat(valorAbertura) || 0;
   const saldoAtual = valorAberturaNum + totalEntradas + totalSuprimentos - totalSaidas - totalRetiradas;
 
-  // Fechar Caixa
-  const fecharCaixa = () => {
+  // Fechar Caixa com Exportação de PDF e Salvamento em CSV
+  const fecharCaixa = async () => {
     if (confirm(`Deseja fechar o caixa com saldo de R$ ${saldoAtual.toFixed(2)}?`)) {
-      setCaixaAberto(false);
-      setValorAbertura('');
-      setEntradas([]);
-      setSaidas([]);
-      setSuprimentos([]);
-      setRetiradas([]);
-      toast.success('Caixa fechado com sucesso!');
+      try {
+        // Criar objeto com dados do fechamento
+        const dataHora = new Date().toLocaleString('pt-BR');
+        const idFechamento = `caixa_${Date.now()}`;
+        
+        const dadosFechamento: CaixaFechamento = {
+          id: idFechamento,
+          dataHora,
+          valorAbertura: valorAberturaNum,
+          totalEntradas,
+          totalSaidas,
+          totalSuprimentos,
+          totalRetiradas,
+          saldoFinal: saldoAtual,
+          entradas: entradas.map(e => ({ valor: e.valor, timestamp: e.timestamp })),
+          saidas: saidas.map(s => ({ valor: s.valor, descricao: s.descricao || '', timestamp: s.timestamp })),
+          suprimentos: suprimentos.map(s => ({ valor: s.valor, timestamp: s.timestamp })),
+          retiradas: retiradas.map(r => ({ valor: r.valor, timestamp: r.timestamp })),
+        };
+
+        // Gerar PDF
+        await gerarPDFFechamentoCaixa(dadosFechamento);
+        toast.success('PDF gerado com sucesso!');
+
+        // Gerar CSV e salvar em localStorage (simulando banco de dados)
+        const csvData = gerarCSVFechamentoCaixa(dadosFechamento);
+        const historicoCSV = localStorage.getItem('caixa-historico') || 'ID;Data/Hora;Abertura;Entradas;Saidas;Suprimentos;Retiradas;Saldo Final\n';
+        const novoHistorico = historicoCSV + csvData + '\n';
+        localStorage.setItem('caixa-historico', novoHistorico);
+        toast.success('Dados salvos no banco de dados!');
+
+        // Limpar dados e fechar caixa
+        setCaixaAberto(false);
+        setValorAbertura('');
+        setEntradas([]);
+        setSaidas([]);
+        setSuprimentos([]);
+        setRetiradas([]);
+        toast.success('Caixa fechado com sucesso!');
+      } catch (error) {
+        console.error('Erro ao fechar caixa:', error);
+        toast.error('Erro ao gerar PDF ou salvar dados');
+      }
+    }
+  };
+
+  // Exportar histórico CSV
+  const exportarHistorico = () => {
+    const historico = localStorage.getItem('caixa-historico');
+    if (historico) {
+      const blob = new Blob([historico], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'historico_caixa.csv');
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success('Histórico exportado!');
+    } else {
+      toast.error('Nenhum histórico disponível');
     }
   };
 
@@ -244,14 +301,24 @@ export default function Home() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Gerenciador de Caixa</h1>
-          <Button
-            onClick={fecharCaixa}
-            variant="outline"
-            className="border-red-200 text-red-600 hover:bg-red-50"
-          >
-            <RotateCcw className="w-4 h-4 mr-2" />
-            Fechar Caixa
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              onClick={fecharCaixa}
+              variant="outline"
+              className="border-red-200 text-red-600 hover:bg-red-50"
+            >
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Fechar Caixa
+            </Button>
+            <Button
+              onClick={exportarHistorico}
+              variant="outline"
+              className="border-blue-200 text-blue-600 hover:bg-blue-50"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Exportar Historico
+            </Button>
+          </div>
         </div>
 
         {/* Dashboard - 4 Cards */}
@@ -283,7 +350,7 @@ export default function Home() {
             <div className="display-number value-positive">
               R$ {totalSuprimentos.toFixed(2)}
             </div>
-            <p className="text-xs text-gray-500 mt-2">{suprimentos.length} transação(ões)</p>
+            <p className="text-xs text-gray-500 mt-2">{suprimentos.length} transacao(oes)</p>
           </Card>
 
           {/* Card 4: Retirada */}
@@ -292,7 +359,7 @@ export default function Home() {
             <div className="display-number value-negative">
               R$ {totalRetiradas.toFixed(2)}
             </div>
-            <p className="text-xs text-gray-500 mt-2">{retiradas.length} transação(ões)</p>
+            <p className="text-xs text-gray-500 mt-2">{retiradas.length} transacao(oes)</p>
           </Card>
         </div>
 
