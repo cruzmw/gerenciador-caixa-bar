@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Trash2, Plus, RotateCcw, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { gerarPDFFechamentoCaixa, gerarCSVFechamentoCaixa, type CaixaFechamento } from '@/lib/pdf-generator';
+import { VerificadorCedulas } from '@/components/VerificadorCedulas';
 
 /**
  * Gerenciador de Caixa - Bar
@@ -301,7 +302,8 @@ export default function Home() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Gerenciador de Caixa</h1>
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
+            <VerificadorCedulas />
             <Button
               onClick={fecharCaixa}
               variant="outline"
